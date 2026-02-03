@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('books', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('book_id')->constrained()->onDelete('cascade');
-            $table->date('tanggal_pinjam');
-            $table->date('tanggal_kembali')->nullable();
-            $table->enum('status', ['dipinjam', 'dikembalikan'])->default('dipinjam');
+            $table->string('title');    // Judul buku
+            $table->string('author');   // Penulis
+            $table->string('category'); // Kategori
+            $table->string('cover')->nullable(); // Foto sampul
+            $table->integer('stok')->default(0);
             $table->timestamps();
         });
     }
