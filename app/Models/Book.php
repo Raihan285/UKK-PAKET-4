@@ -14,10 +14,11 @@ class Book extends Model
      * Sesuai dengan tampilan di home.blade.php
      */
     protected $fillable = [
-        'title',    
-        'author',   
-        'category', 
+        'judul',    
+        'penulis',   
+        'kategori', 
         'cover',    
         'stok',     
+        
     ];
 }

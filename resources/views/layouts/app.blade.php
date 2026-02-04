@@ -6,6 +6,8 @@
     <title>Booktify - Digital Library</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/phosphor-icons@2.1.0"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
 <body class="bg-gray-50 font-sans">
     <div class="flex h-screen overflow-hidden">
@@ -16,6 +18,7 @@
         </main>
 
         @include('layouts.right-panel')
+        <style>[x-cloak] { display: none !important; }</style>
     </div>
 </body>
 </html>

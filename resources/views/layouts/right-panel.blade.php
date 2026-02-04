@@ -28,7 +28,7 @@
         <form action="{{ route('logout') }}" method="POST">
             @csrf
             <button type="submit" class="w-full flex items-center justify-center space-x-2 p-3 text-red-500 hover:bg-red-50 rounded-xl transition-all font-semibold text-sm">
-                <i class="ph ph-sign-out"></i> <span>Keluar Aplikasi</span>
+                <i class="ph ph-sign-out"></i> <span>Logout</span>
             </button>
         </form>
     </div>

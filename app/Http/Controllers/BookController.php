@@ -2,54 +2,95 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+// Pastikan Model Book sudah di-import dengan benar
+use App\Models\Book; 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class BookController extends Controller
 {
-    // Menampilkan halaman login sesuai desain tanpa navbar
-    public function showLogin() { return view('auth.login'); }
+    /**
+     * Menampilkan daftar buku (Halaman Kelola Buku)
+     * Mengatasi error Call to undefined method
+     */
+    public function index()
+    {
+        // Ambil semua data dari database
+        // Gunakan nama variabel $buku agar sinkron dengan View
+        $buku = Book::all(); 
+        
+        // Mengirim variabel $buku ke resources/views/buku/index.blade.php
+        return view('buku.index', compact('buku'));
+    }
 
-    // Proses Validasi Login (Flowmap: Validasi Login)
-    public function login(Request $request) {
-        $credentials = $request->validate([
-            'username' => 'required',
-            'password' => 'required',
-        ]);
+    public function create()
+    {
+        return view('buku.create');
+    }
 
-        if (Auth::attempt($credentials)) {
-            $request->session()->regenerate();
-            return redirect()->intended('/'); // Jika True -> Dashboard
+    public function store(Request $request)
+    {
+    // 1. Validasi Input
+    $request->validate([
+        'judul' => 'required',
+        'penulis' => 'required',
+        'kategori' => 'required',
+        'stok' => 'required|numeric',
+        'cover' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+    ]);
+
+    // 2. Upload Gambar Cover
+    $path = $request->file('cover')->store('covers', 'public');
+
+    // 3. Simpan ke Database
+    \App\Models\Book::create([
+        'judul' => $request->judul,
+        'penulis' => $request->penulis,
+        'kategori' => $request->kategori,
+        'stok' => $request->stok,
+        'cover' => $path,
+    ]);
+
+    return redirect()->route('buku.index')->with('success', 'Buku berhasil ditambahkan!');
+}
+    public function destroy($id)
+{
+    $buku = \App\Models\Book::findOrFail($id);
+
+    if ($buku->cover) {
+        // Menggunakan backslash agar langsung memanggil global class Laravel
+        \Illuminate\Support\Facades\Storage::disk('public')->delete($buku->cover);
+    }
+
+    $buku->delete();
+
+    return redirect()->back()->with('success', 'Buku berhasil dihapus!');
+}
+
+public function update(Request $request, $id)
+{
+    $buku = \App\Models\Book::findOrFail($id);
+
+    $request->validate([
+        'judul' => 'required',
+        'penulis' => 'required',
+        'kategori' => 'required',
+        'stok' => 'required|numeric',
+        'cover' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+    ]);
+
+    $data = $request->all();
+
+    if ($request->hasFile('cover')) {
+        // Hapus cover lama jika ada file baru yang diupload
+        if ($buku->cover) {
+            Storage::disk('public')->delete($buku->cover);
         }
-
-        return back()->withErrors(['username' => 'Username atau password salah.']); // Jika False -> Balik ke login
+        $data['cover'] = $request->file('cover')->store('covers', 'public');
     }
 
-    // Menampilkan halaman Daftar Anggota (Flowmap: Daftar Anggota)
-    public function showRegister() { return view('auth.register'); }
+    $buku->update($data);
 
-    // Proses Registrasi Siswa Baru
-    public function register(Request $request) {
-        $request->validate([
-            'nama' => 'required',
-            'username' => 'required|unique:users',
-            'password' => 'required|min:6',
-        ]);
-
-        User::create([
-            'name' => $request->nama,
-            'username' => $request->username,
-            'password' => Hash::make($request->password),
-            'role' => 'siswa', // Otomatis menjadi siswa 
-        ]);
-
-        return redirect()->route('login')->with('success', 'Pendaftaran berhasil, silakan login.');
-    }
-
-    public function logout() {
-        Auth::logout();
-        return redirect('/login');
-    }
+    return redirect()->back()->with('success', 'Data buku berhasil diperbarui!');
+}
 }
