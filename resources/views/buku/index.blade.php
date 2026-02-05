@@ -39,26 +39,21 @@
                         <p class="text-xs text-gray-400">{{ $item->penulis }}</p>
                     </td>
                     <td class="px-6 py-4">
-                        <span class="bg-orange-50 text-orange-500 text-[10px] font-bold px-3 py-1 rounded-full border border-orange-100">
+                        <span class="bg-blue-50 text-blue-500 text-[10px] font-bold px-3 py-1 rounded-full border border-blue-100 uppercase">
                             {{ $item->kategori }}
                         </span>
                     </td>
                     <td class="px-6 py-4 font-semibold text-gray-700">{{ $item->stok }}</td>
-                    
                     <td class="px-6 py-4">
                         <div class="flex justify-center items-center gap-2">
                             <button @click="openEditModal = true; editData = { id: '{{ $item->id }}', judul: '{{ $item->judul }}', penulis: '{{ $item->penulis }}', kategori: '{{ $item->kategori }}', stok: '{{ $item->stok }}' }" 
-                               class="flex items-center justify-center w-9 h-9 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all duration-300 shadow-sm"
-                               title="Edit Buku">
+                               class="flex items-center justify-center w-9 h-9 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-600 hover:text-white transition-all duration-300 shadow-sm">
                                 <i class="ph-bold ph-pencil-simple text-lg"></i>
                             </button>
-
                             <form action="{{ route('buku.destroy', $item->id) }}" method="POST" onsubmit="return confirm('Hapus buku ini?')" class="inline">
                                 @csrf 
                                 @method('DELETE')
-                                <button type="submit" 
-                                        class="flex items-center justify-center w-9 h-9 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all duration-300 shadow-sm"
-                                        title="Hapus Buku">
+                                <button type="submit" class="flex items-center justify-center w-9 h-9 bg-red-50 text-red-600 rounded-xl hover:bg-red-600 hover:text-white transition-all duration-300 shadow-sm">
                                     <i class="ph-bold ph-trash text-lg"></i>
                                 </button>
                             </form>
@@ -67,40 +62,34 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="px-6 py-10 text-center text-gray-400 italic">
-                        Belum ada data buku yang ditambahkan.
-                    </td>
+                    <td colspan="5" class="px-6 py-10 text-center text-gray-400 italic">Belum ada data buku.</td>
                 </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
 
-    <div x-show="openModal" x-cloak style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" x-transition>
+    <div x-show="openModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
         <div @click.away="openModal = false" class="bg-white w-full max-w-lg rounded-[2.5rem] p-8 shadow-2xl relative">
-            <button @click="openModal = false" class="absolute top-6 right-6 text-gray-400 hover:text-gray-600">
-                <i class="ph-bold ph-x text-xl"></i>
-            </button>
-            <h3 class="text-xl font-extrabold text-gray-900 mb-2">Tambah Buku Baru</h3>
-            <p class="text-gray-400 text-sm mb-6">Pastikan data yang Anda masukkan sudah benar.</p>
+            <h3 class="text-xl font-extrabold text-gray-900 mb-6">Tambah Buku Baru</h3>
             <form action="{{ route('buku.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
                 @csrf
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Judul Buku</label>
-                    <input type="text" name="judul" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Contoh: Belajar Algoritma" required>
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2 ml-1">Judul Buku</label>
+                    <input type="text" name="judul" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2 ml-1">Penulis</label>
-                        <input type="text" name="penulis" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" required>
+                        <input type="text" name="penulis" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2 ml-1">Kategori</label>
-                        <select name="kategori" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none" required>
-                            <option value="Sains">Sains</option>
-                            <option value="Novel">Novel</option>
-                            <option value="Sejarah">Sejarah</option>
-                            <option value="Agama">Agama</option>
+                        <select name="kategori" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
+                            <option value="">Pilih Kategori</option>
+                            @foreach($categories as $cat)
+                                <option value="{{ $cat }}">{{ $cat }}</option>
+                            @endforeach
                         </select>
                     </div>
                 </div>
@@ -111,31 +100,26 @@
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2 ml-1">Cover</label>
-                        <input type="file" name="cover" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
+                        <input type="file" name="cover" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-blue-50 file:text-blue-700" required>
                     </div>
                 </div>
                 <div class="pt-4 flex gap-3">
-                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all">Simpan Koleksi</button>
+                    <button type="submit" class="flex-1 bg-blue-600 text-white font-bold py-3.5 rounded-xl">Simpan</button>
                     <button type="button" @click="openModal = false" class="px-6 py-3.5 bg-gray-100 text-gray-400 font-bold rounded-xl">Batal</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div x-show="openEditModal" x-cloak style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4" x-transition>
+    <div x-show="openEditModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
         <div @click.away="openEditModal = false" class="bg-white w-full max-w-lg rounded-[2.5rem] p-8 shadow-2xl relative">
-            <button @click="openEditModal = false" class="absolute top-6 right-6 text-gray-400 hover:text-gray-600">
-                <i class="ph-bold ph-x text-xl"></i>
-            </button>
-            <h3 class="text-xl font-extrabold text-gray-900 mb-2">Edit Data Buku</h3>
-            <p class="text-gray-400 text-sm mb-6">Ubah informasi buku yang diperlukan.</p>
-            
+            <h3 class="text-xl font-extrabold text-gray-900 mb-6">Edit Data Buku</h3>
             <form :action="'/buku/' + editData.id" method="POST" enctype="multipart/form-data" class="space-y-4">
                 @csrf
                 @method('PUT')
                 <div>
                     <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2 ml-1">Judul Buku</label>
-                    <input type="text" name="judul" x-model="editData.judul" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" required>
+                    <input type="text" name="judul" x-model="editData.judul" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
@@ -144,11 +128,10 @@
                     </div>
                     <div>
                         <label class="block text-[10px] font-bold text-gray-400 uppercase mb-2 ml-1">Kategori</label>
-                        <select name="kategori" x-model="editData.kategori" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none" required>
-                            <option value="Sains">Sains</option>
-                            <option value="Novel">Novel</option>
-                            <option value="Sejarah">Sejarah</option>
-                            <option value="Agama">Agama</option>
+                        <select name="kategori" x-model="editData.kategori" class="w-full px-4 py-3 bg-gray-50 border border-gray-100 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" required>
+                            @foreach($categories as $cat)
+                                <option value="{{ $cat }}">{{ $cat }}</option>
+                            @endforeach
                         </select>
                     </div>
                 </div>
@@ -163,7 +146,7 @@
                     </div>
                 </div>
                 <div class="pt-4 flex gap-3">
-                    <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-blue-100">Update Data</button>
+                    <button type="submit" class="flex-1 bg-blue-600 text-white font-bold py-3.5 rounded-xl">Update</button>
                     <button type="button" @click="openEditModal = false" class="px-6 py-3.5 bg-gray-100 text-gray-400 font-bold rounded-xl">Batal</button>
                 </div>
             </form>

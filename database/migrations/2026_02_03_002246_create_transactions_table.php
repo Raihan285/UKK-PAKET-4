@@ -10,17 +10,22 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {
-        Schema::create('transactions', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->foreignId('book_id')->constrained()->onDelete('cascade');
-            $table->date('tanggal_pinjam');
-            $table->date('tanggal_kembali')->nullable();
-            $table->enum('status', ['dipinjam', 'dikembalikan'])->default('dipinjam');
-            $table->timestamps();
-        });
-    }
+{
+    Schema::create('transactions', function (Blueprint $table) {
+        $table->id();
+        $table->foreignId('user_id')->constrained()->onDelete('cascade');
+        $table->foreignId('book_id')->constrained()->onDelete('cascade');
+        
+        // Buat nullable agar tidak error saat pengajuan awal
+        $table->date('tanggal_pinjam')->nullable(); 
+        $table->date('tanggal_kembali')->nullable();
+        
+        // Tambahkan status 'menunggu' sesuai Flowmap UKK
+        $table->enum('status', ['menunggu', 'dipinjam', 'kembali'])->default('menunggu');
+        
+        $table->timestamps();
+    });
+}
 
     /**
      * Reverse the migrations.

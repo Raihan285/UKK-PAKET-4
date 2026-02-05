@@ -9,15 +9,19 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+  public function up(): void
     {
         Schema::create('books', function (Blueprint $table) {
             $table->id();
-            $table->string('title');    // Judul buku
-            $table->string('author');   // Penulis
-            $table->string('category'); // Kategori
-            $table->string('cover')->nullable(); // Foto sampul
+            $table->string('judul');
+            $table->string('penulis');
+            $table->string('kategori'); // Tetap ada agar tidak error
+            $table->string('cover')->nullable();
             $table->integer('stok')->default(0);
+            
+            // Tambahkan kolom rekomendasi di sini (disatukan)
+            $table->boolean('is_recommended')->default(false); 
+            
             $table->timestamps();
         });
     }
