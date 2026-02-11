@@ -8,6 +8,42 @@
     <script src="https://cdn.jsdelivr.net/npm/phosphor-icons@2.1.0"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('globalSearch');
+        
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+                
+                // Mencari Baris Tabel (untuk halaman manajemen) 
+                // DAN Card dengan class 'searchable-item' (untuk halaman beranda)
+                const targets = document.querySelectorAll('tbody tr, .searchable-item');
+
+                targets.forEach(el => {
+                    const text = el.textContent.toLowerCase();
+                    
+                    if (text.includes(searchTerm)) {
+                        // Jika ketemu, tampilkan sesuai jenis elemennya
+                        if (el.tagName === 'TR') {
+                            el.style.display = 'table-row';
+                        } else {
+                            el.style.display = 'block'; 
+                        }
+                        el.style.opacity = '1';
+                    } else {
+                        // Jika tidak ketemu, sembunyikan
+                        el.style.display = 'none';
+                    }
+                });
+
+                // Opsional: Berikan feedback jika hasil kosong
+                const visibleItems = Array.from(targets).filter(t => t.style.display !== 'none');
+                console.log('Menampilkan ' + visibleItems.length + ' hasil untuk: ' + searchTerm);
+            });
+        }
+    });
+    </script>
 </head>
 <body class="bg-gray-50 font-sans">
     <div class="flex h-screen overflow-hidden">

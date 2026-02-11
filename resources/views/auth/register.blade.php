@@ -17,7 +17,7 @@
             <label>Email</label>
             <input type="email" name="email" class="w-full border p-2 rounded" required>
         </div>
-        <div class="mb-6">
+        <div class="mb-6">php artisan migrate:fresh --seed
             <label>Password</label>
             <input type="password" name="password" class="w-full border p-2 rounded" required>
         </div>

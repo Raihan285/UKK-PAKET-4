@@ -11,8 +11,8 @@
             <span>Beranda</span>
         </a>
         
-        <a href="{{ route('daftar-buku.index') }}" 
-           class="flex items-center space-x-3 px-4 py-3 {{ request()->routeIs('daftar-buku.*') ? 'bg-blue-50 text-blue-600' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600' }} rounded-xl font-semibold transition-all">
+        <a href="{{ route('daftar_buku.index') }}" 
+           class="flex items-center space-x-3 px-4 py-3 {{ request()->routeIs('daftar_buku.*') ? 'bg-blue-50 text-blue-600' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-600' }} rounded-xl font-semibold transition-all">
             <i class="ph-bold ph-book-open text-lg"></i> 
             <span>Daftar Buku</span>
         </a>

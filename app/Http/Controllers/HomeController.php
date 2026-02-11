@@ -8,15 +8,32 @@ use App\Models\Book; // Menggunakan Book (Sesuai folder Models Anda)
 
 class HomeController extends Controller
 {
-    public function index()
-{
-    // Mengambil semua data buku untuk ditampilkan di section "Rekomendasi"
-    $books = \App\Models\Book::all();
+public function index(Request $request) {
+    $kategori_dipilih = $request->query('kategori');
+    $query = \App\Models\Book::query();
     
-    // Tetap kirim statistik jika Anda ingin menaruhnya di bagian paling atas
-    $total_buku = $books->count();
+    if ($kategori_dipilih) {
+        $query->where('kategori', $kategori_dipilih);
+    }
+    
+    $books = $query->get();
+
+    // Blok Try-Catch untuk mengantisipasi tabel yang hilang
+    try {
+        $setting = \App\Models\Setting::first() ?: (object)[
+            'batas_hari' => 7, 
+            'denda_per_hari' => 1000
+        ];
+    } catch (\Exception $e) {
+        $setting = (object)[
+            'batas_hari' => 7, 
+            'denda_per_hari' => 1000
+        ];
+    }
+
+    $total_buku = \App\Models\Book::count();
     $total_anggota = \App\Models\User::where('role', 'siswa')->count();
 
-    return view('home', compact('books', 'total_buku', 'total_anggota'));
-    }
+    return view('home', compact('books', 'setting', 'total_buku', 'total_anggota', 'kategori_dipilih'));
+}
 }

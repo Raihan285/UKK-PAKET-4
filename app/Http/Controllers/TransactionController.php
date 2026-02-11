@@ -3,21 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Models\Transaction;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class TransactionController extends Controller
 {
+    /**
+     * Menampilkan riwayat transaksi untuk Admin dan Siswa.
+     */
     public function index()
     {
-        // Jika yang login adalah 'siswa', tampilkan hanya miliknya sendiri
-        // Jika yang login adalah 'admin', tampilkan semua (opsional, tergantung keinginan Anda)
-        
         if (Auth::user()->role == 'admin') {
             $transactions = Transaction::with(['book', 'user'])->latest()->get();
         } else {
             $transactions = Transaction::with(['book'])
-                            ->where('user_id', Auth::id()) // Filter berdasarkan akun yang login
+                            ->where('user_id', Auth::id())
                             ->latest()
                             ->get();
         }
@@ -25,74 +27,92 @@ class TransactionController extends Controller
         return view('transaksi.index', compact('transactions'));
     }
 
-    public function approve($id)
+    /**
+     * Menampilkan halaman khusus pengembalian untuk Admin.
+     * Solusi untuk error image_a1f782.png
+     */
+    public function pengembalian()
     {
-        $transaction = \App\Models\Transaction::findOrFail($id);
-        
-        // 1. Ambil batas hari dari setting. Jika tidak ada, default ke 7 hari.
-        $setting = \App\Models\Setting::first();
-        $batasHari = $setting ? $setting->batas_hari : 7; 
+        if (Auth::user()->role != 'admin') {
+            abort(403);
+        }
 
-        // 2. Update status dan hitung tanggal kembali secara dinamis
-        $transaction->update([
-            'status' => 'dipinjam',
-            'tanggal_pinjam' => now(),
-            // Tanggal kembali = Hari ini + Batas Hari dari pengaturan
-            'tanggal_kembali' => now()->addDays($batasHari), 
-        ]);
+        // Filter hanya transaksi yang sedang dipinjam atau menunggu konfirmasi kembali
+        $transactions = Transaction::with(['book', 'user'])
+                        ->whereIn('status', ['dipinjam', 'menunggu_kembali'])
+                        ->latest()
+                        ->get();
 
-        // 3. Kurangi stok buku
-        $transaction->book->decrement('stok');
-
-        return redirect()->back()->with('success', 'Peminjaman disetujui! Batas kembali adalah ' . $transaction->tanggal_kembali->format('d M Y'));
+        return view('transaksi.pengembalian', compact('transactions'));
     }
 
-    // Tambahkan function store ini di dalam TransactionController
+    /**
+     * Siswa mengajukan peminjaman buku.
+     */
     public function store(Request $request)
     {
-        // 1. Validasi input agar tidak ada data kosong
         $request->validate([
             'book_id' => 'required|exists:books,id',
         ]);
 
-        // 2. Simpan pengajuan pinjaman dengan status 'menunggu'
-        // Menggunakan Auth::id() lebih stabil untuk mengambil ID user yang login
-        \App\Models\Transaction::create([
-            'user_id' => \Illuminate\Support\Facades\Auth::id(), 
+        Transaction::create([
+            'user_id' => Auth::id(), 
             'book_id' => $request->book_id,
-            'status' => 'menunggu', // Sesuai dokumen UKK: perlu persetujuan admin [cite: 33]
+            'status' => 'menunggu', 
         ]);
 
-        // 3. Arahkan kembali ke halaman transaksi dengan pesan sukses
-        return redirect()->route('transaksi.index')->with('success', 'Buku berhasil diajukan! Silakan tunggu persetujuan admin.');
+        return redirect()->route('transaksi.index')->with('success', 'Buku diajukan! Tunggu persetujuan admin.');
     }
 
-    public function pengembalian()
+    /**
+     * Admin menyetujui peminjaman.
+     */
+    public function approve($id)
     {
-        // Gunakan Auth facade agar lebih stabil
-        if (\Illuminate\Support\Facades\Auth::user()->role != 'admin') {
-            abort(403);
-        }
+        $transaction = Transaction::findOrFail($id);
+        $setting = Setting::first();
+        $batasHari = $setting ? $setting->batas_hari : 7; 
 
-        $transactions = Transaction::with(['book', 'user'])
-            ->where('status', 'dipinjam')
-            ->latest()
-            ->get();
+        $transaction->update([
+            'status' => 'dipinjam',
+            'tanggal_pinjam' => now(),
+            'tanggal_kembali' => now()->addDays($batasHari), 
+        ]);
 
-        // ERROR FIX: Pastikan memanggil folder 'transaksi', bukan 'admin'
-        return view('transaksi.pengembalian', compact('transactions'));
+        $transaction->book->decrement('stok');
+
+        return redirect()->back()->with('success', 'Peminjaman disetujui!');
     }
-    
+
+    /**
+     * SISWA: Mengajukan pengembalian (status: menunggu_kembali).
+     */
+    public function ajukanPengembalian($id)
+    {
+        $transaction = Transaction::where('id', $id)
+                        ->where('user_id', Auth::id())
+                        ->where('status', 'dipinjam')
+                        ->firstOrFail();
+
+        $transaction->update(['status' => 'menunggu_kembali']);
+
+        return redirect()->back()->with('success', 'Permintaan pengembalian dikirim ke Admin.');
+    }
+
+    /**
+     * ADMIN: Konfirmasi pengembalian buku fisik & hitung denda.
+     * Solusi untuk error image_a1ebe3.png (alias returnBook)
+     */
     public function processReturn($id)
     {
         $transaction = Transaction::findOrFail($id);
-        $setting = \App\Models\Setting::first() ?? (object)['denda_per_hari' => 1000];
+        $setting = Setting::first() ?? (object)['denda_per_hari' => 1000];
 
-        $tgl_deadline = \Carbon\Carbon::parse($transaction->tanggal_kembali);
+        $tgl_deadline = Carbon::parse($transaction->tanggal_kembali);
         $tgl_sekarang = now();
         $total_denda = 0;
 
-        // Jika lewat batas waktu, hitung denda
+        // Hitung selisih hari jika terlambat
         if ($tgl_sekarang->gt($tgl_deadline)) {
             $selisih_hari = $tgl_sekarang->diffInDays($tgl_deadline);
             $total_denda = $selisih_hari * $setting->denda_per_hari;
@@ -101,11 +121,19 @@ class TransactionController extends Controller
         $transaction->update([
             'status' => 'kembali',
             'tanggal_pengembalian' => $tgl_sekarang,
-            'denda' => $total_denda, // Pastikan kolom denda sudah ada di tabel transaksi
+            'denda' => $total_denda,
         ]);
 
         $transaction->book->increment('stok');
 
-        return back()->with('success', "Buku kembali! Denda: Rp " . number_format($total_denda, 0, ',', '.'));
+        return back()->with('success', "Buku diterima! Denda: Rp " . number_format($total_denda, 0, ',', '.'));
+    }
+
+    /**
+     * Alias method untuk route 'transaksi.return' agar tidak error
+     */
+    public function returnBook($id)
+    {
+        return $this->processReturn($id);
     }
 }

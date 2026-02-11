@@ -11,21 +11,26 @@ use Illuminate\Support\Facades\Gate;
 class SettingController extends Controller
 {
     public function index()
-    {
-        if (!\Illuminate\Support\Facades\Gate::allows('admin')) {
-            abort(403);
-        }
+{
+    if (!\Illuminate\Support\Facades\Gate::allows('admin')) {
+        abort(403);
+    }
 
+    try {
+        // Menggunakan firstOrCreate agar data ID 1 otomatis ada
         $setting = Setting::firstOrCreate(['id' => 1], [
             'batas_hari' => 7,
             'denda_per_hari' => 1000,
-            'daftar_kategori' => ['Novel', 'Sains', 'Biografi'] // Data awal
+            'daftar_kategori' => ['Novel', 'Sains', 'Biografi']
         ]);
-
-        $books = \App\Models\Book::all();
-
-        return view('settings.index', compact('setting', 'books'));
+    } catch (\Exception $e) {
+        // Fallback jika tabel benar-benar belum ada di MySQL
+        return "Tabel settings belum dibuat. Silakan jalankan 'php artisan migrate' di terminal.";
     }
+
+    $books = \App\Models\Book::all();
+    return view('settings.index', compact('setting', 'books'));
+}
 
     // Update Denda & Batas Hari
    public function update(Request $request)

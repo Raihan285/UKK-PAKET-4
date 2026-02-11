@@ -9,7 +9,10 @@
 
     <div class="relative mb-10">
         <i class="ph ph-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-        <input type="text" placeholder="Cari buku..." class="w-full bg-gray-50 border-none rounded-2xl py-3 pl-12 pr-4 text-sm focus:ring-2 focus:ring-blue-100 transition-all">
+        <input type="text" 
+       id="globalSearch" 
+       placeholder="Cari..." 
+       class="w-full bg-gray-50 border-none rounded-2xl py-3 pl-12 pr-4 text-sm focus:ring-2 focus:ring-blue-100 transition-all">
     </div>
 
     <div class="mt-auto space-y-6">
