@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Book; // Menggunakan Book (Sesuai folder Models Anda)
 

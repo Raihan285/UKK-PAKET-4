@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Transaction;
+use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;

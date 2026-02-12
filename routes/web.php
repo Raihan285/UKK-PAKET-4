@@ -8,6 +8,7 @@ use App\Http\Controllers\AnggotaController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\DaftarBukuController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\DashboardController;
 
 
 // --- HALAMAN GUEST (Akses sebelum Login) ---
@@ -42,6 +43,8 @@ Route::middleware(['auth'])->group(function () {
     // --- KHUSUS ROLE ADMIN SAJA ---
     Route::middleware(['can:admin'])->group(function () {
         
+        // Tambahkan ini di dalam Route::middleware(['can:admin'])  
+        Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
         // A. Manajemen Master Data
         Route::resource('buku', BookController::class);
         Route::resource('anggota', AnggotaController::class);
@@ -67,5 +70,7 @@ Route::middleware(['auth'])->group(function () {
 
         // E. Fitur Tambahan: Rekomendasi
         Route::post('/settings/book-recommendation/{id}', [SettingController::class, 'toggleRecommendation'])->name('settings.recommendation.toggle');
+
+        
     });
 });

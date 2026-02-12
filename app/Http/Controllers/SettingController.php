@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Setting;
+use App\Http\Controllers\Controller;
 use App\Models\Category; // Pastikan model ini sudah dibuat
 use App\Models\Book;     // Pastikan model ini sudah dibuat
 use Illuminate\Http\Request;
