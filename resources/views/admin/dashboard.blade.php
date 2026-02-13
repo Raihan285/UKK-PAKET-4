@@ -23,7 +23,7 @@
                 <h3 class="text-2xl font-black text-gray-900 dark:text-white">{{ $total_siswa }}</h3>
                 <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Anggota</p>
             </div>
-
+            //aaa
             {{-- Card: Total Buku --}}
             <div class="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-gray-100 dark:border-slate-800 shadow-sm">
                 <div class="flex justify-between items-start mb-4">
