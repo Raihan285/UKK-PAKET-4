@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Transaction;
-use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,43 +11,73 @@ use Carbon\Carbon;
 class TransactionController extends Controller
 {
     /**
-     * Menampilkan riwayat transaksi untuk Admin dan Siswa.
+     * Menampilkan riwayat transaksi (Admin/Siswa)
      */
     public function index()
     {
-        if (Auth::user()->role == 'admin') {
-            $transactions = Transaction::with(['book', 'user'])->latest()->get();
-        } else {
-            $transactions = Transaction::with(['book'])
-                            ->where('user_id', Auth::id())
-                            ->latest()
-                            ->get();
-        }
-
-        return view('transaksi.index', compact('transactions'));
-    }
-
-    /**
-     * Menampilkan halaman khusus pengembalian untuk Admin.
-     * Solusi untuk error image_a1f782.png
-     */
-    public function pengembalian()
-    {
+        $setting = Setting::first();
+        $dendaPerHari = $setting ? $setting->denda_per_hari : 1000;
+        
+        $query = Transaction::with(['book', 'user']);
+        
         if (Auth::user()->role != 'admin') {
-            abort(403);
+            $query->where('user_id', Auth::id());
         }
 
-        // Filter hanya transaksi yang sedang dipinjam atau menunggu konfirmasi kembali
-        $transactions = Transaction::with(['book', 'user'])
-                        ->whereIn('status', ['dipinjam', 'menunggu_kembali'])
-                        ->latest()
-                        ->get();
+        $transactions = $query->latest()->get()->map(function ($trx) use ($dendaPerHari) {
+            if ($trx->status == 'dipinjam' || $trx->status == 'menunggu_kembali') {
+                $tglDeadline = Carbon::parse($trx->tanggal_kembali)->startOfDay();
+                $tglSekarang = Carbon::now()->startOfDay();
+                
+                if ($tglSekarang->gt($tglDeadline)) {
+                    $hariTerlambat = $tglSekarang->diffInDays($tglDeadline);
+                    $trx->total_denda_saat_ini = $hariTerlambat * $dendaPerHari;
+                } else {
+                    $trx->total_denda_saat_ini = 0;
+                }
+            } else {
+                $trx->total_denda_saat_ini = $trx->denda;
+            }
+            return $trx;
+        });
 
-        return view('transaksi.pengembalian', compact('transactions'));
+        return view('transaksi.index', compact('transactions', 'setting'));
     }
 
     /**
-     * Siswa mengajukan peminjaman buku.
+     * Menampilkan halaman Kelola Pengembalian khusus Admin
+     */
+   public function pengembalian()
+    {
+        $setting = \App\Models\Setting::first();
+        $dendaPerHari = $setting ? $setting->denda_per_hari : 1000;
+
+        $transactions = \App\Models\Transaction::with(['book', 'user'])
+            ->whereIn('status', ['dipinjam', 'menunggu_kembali'])
+            ->get()
+            ->map(function ($trx) use ($dendaPerHari) {
+                // GUNAKAN parse() agar lebih aman dari error format trailing data
+                if ($trx->tanggal_kembali) {
+                    $tglDeadline = \Carbon\Carbon::parse($trx->tanggal_kembali)->startOfDay();
+                    $tglSekarang = \Carbon\Carbon::now()->startOfDay();
+                    
+                    if ($tglSekarang->gt($tglDeadline)) {
+                        $selisihHari = $tglSekarang->diffInDays($tglDeadline);
+                        $trx->denda_otomatis = $selisihHari * $dendaPerHari;
+                    } else {
+                        $trx->denda_otomatis = 0;
+                    }
+                } else {
+                    $trx->denda_otomatis = 0;
+                }
+                return $trx;
+            });
+
+        return view('transaksi.pengembalian', compact('transactions', 'setting'));
+    }
+
+    /**
+     * Simpan peminjaman baru (Siswa)
      */
     public function store(Request $request)
     {
@@ -62,15 +91,20 @@ class TransactionController extends Controller
             'status' => 'menunggu', 
         ]);
 
-        return redirect()->route('transaksi.index')->with('success', 'Buku diajukan! Tunggu persetujuan admin.');
+        return redirect()->route('transaksi.index')->with('success', 'Buku berhasil diajukan!');
     }
 
     /**
-     * Admin menyetujui peminjaman.
+     * Setujui peminjaman (Admin)
      */
     public function approve($id)
     {
         $transaction = Transaction::findOrFail($id);
+        
+        if ($transaction->book->stok <= 0) {
+            return redirect()->back()->with('error', 'Stok buku habis.');
+        }
+
         $setting = Setting::first();
         $batasHari = $setting ? $setting->batas_hari : 7; 
 
@@ -86,55 +120,50 @@ class TransactionController extends Controller
     }
 
     /**
-     * SISWA: Mengajukan pengembalian (status: menunggu_kembali).
-     */
-    public function ajukanPengembalian($id)
-    {
-        $transaction = Transaction::where('id', $id)
-                        ->where('user_id', Auth::id())
-                        ->where('status', 'dipinjam')
-                        ->firstOrFail();
-
-        $transaction->update(['status' => 'menunggu_kembali']);
-
-        return redirect()->back()->with('success', 'Permintaan pengembalian dikirim ke Admin.');
-    }
-
-    /**
-     * ADMIN: Konfirmasi pengembalian buku fisik & hitung denda.
-     * Solusi untuk error image_a1ebe3.png (alias returnBook)
+     * Proses Pengembalian & Kunci Denda ke Database (Admin)
      */
     public function processReturn($id)
     {
         $transaction = Transaction::findOrFail($id);
-        $setting = Setting::first() ?? (object)['denda_per_hari' => 1000];
+        $setting = Setting::first();
+        $dendaPerHari = $setting ? $setting->denda_per_hari : 1000;
 
-        $tgl_deadline = Carbon::parse($transaction->tanggal_kembali);
-        $tgl_sekarang = now();
-        $total_denda = 0;
+        $tglDeadline = Carbon::parse($transaction->tanggal_kembali)->startOfDay();
+        $tglSekarang = Carbon::now()->startOfDay();
+        $totalDenda = 0;
 
-        // Hitung selisih hari jika terlambat
-        if ($tgl_sekarang->gt($tgl_deadline)) {
-            $selisih_hari = $tgl_sekarang->diffInDays($tgl_deadline);
-            $total_denda = $selisih_hari * $setting->denda_per_hari;
+        if ($tglSekarang->gt($tglDeadline)) {
+            $hariTerlambat = $tglSekarang->diffInDays($tglDeadline);
+            $totalDenda = $hariTerlambat * $dendaPerHari;
         }
 
         $transaction->update([
             'status' => 'kembali',
-            'tanggal_pengembalian' => $tgl_sekarang,
-            'denda' => $total_denda,
+            'tanggal_pengembalian' => now(),
+            'denda' => $totalDenda, 
         ]);
 
         $transaction->book->increment('stok');
 
-        return back()->with('success', "Buku diterima! Denda: Rp " . number_format($total_denda, 0, ',', '.'));
+        return back()->with('success', "Buku kembali! Total denda: Rp " . number_format($totalDenda, 0, ',', '.'));
     }
 
     /**
-     * Alias method untuk route 'transaksi.return' agar tidak error
+     * Fungsi untuk rute pengembalian agar tidak error
      */
     public function returnBook($id)
     {
         return $this->processReturn($id);
+    }
+
+    /**
+     * Siswa mengajukan pengembalian
+     */
+    public function ajukanPengembalian($id)
+    {
+        $transaction = Transaction::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+        $transaction->update(['status' => 'menunggu_kembali']);
+
+        return redirect()->back()->with('success', 'Permintaan pengembalian terkirim.');
     }
 }

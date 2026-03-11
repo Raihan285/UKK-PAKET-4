@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="max-w-6xl mx-auto px-4 py-8 transition-colors duration-500">
-    {{-- Back Button --}}
+    {{-- Button Kembali --}}
     <a href="{{ route('daftar_buku.index') }}" class="inline-flex items-center gap-3 text-gray-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 mb-10 transition-all group">
         <div class="w-8 h-8 rounded-full border border-gray-100 dark:border-slate-800 flex items-center justify-center group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 group-hover:border-blue-100 dark:group-hover:border-blue-800">
             <i class="ph ph-arrow-left font-bold transition-transform group-hover:-translate-x-1"></i>
@@ -12,7 +12,7 @@
 
     <div class="flex flex-col lg:flex-row gap-16 items-start">
         
-        {{-- LEFT COLUMN: Visual Cover --}}
+        {{-- Visual Cover --}}
         <div class="w-full lg:w-[400px] shrink-0 lg:sticky lg:top-8">
             <div class="relative group">
                 <div class="absolute -inset-4 bg-blue-500/10 dark:bg-blue-500/5 blur-3xl rounded-[3rem] opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
@@ -31,7 +31,7 @@
             </div>
         </div>
 
-        {{-- RIGHT COLUMN: Information & Action --}}
+        {{-- Informasi dan aksi --}}
         <div class="flex-1 space-y-10 py-4">
             {{-- Header Info --}}
             <div class="space-y-4">
@@ -68,7 +68,7 @@
                 </div>
             </div>
 
-            {{-- Synopsis/Description --}}
+            {{-- Book description --}}
             <div class="space-y-4">
                 <h3 class="text-[11px] font-black text-gray-900 dark:text-white uppercase tracking-[0.2em]">Tentang Buku</h3>
                 <p class="text-gray-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
@@ -76,7 +76,7 @@
                 </p>
             </div>
 
-            {{-- CTA Action --}}
+            {{-- Action --}}
             <div class="pt-6">
                 @if($book->stok > 0)
                 <form action="{{ route('transaksi.store') }}" method="POST" class="flex flex-col sm:flex-row items-center gap-4">
@@ -86,24 +86,12 @@
                         <i class="ph-fill ph-hand-pointing text-xl group-hover:scale-125 transition-transform"></i>
                         Ajukan Pinjam Sekarang
                     </button>
-                    
-                    <button type="button" class="w-full sm:w-auto p-5 border border-gray-200 dark:border-slate-800 rounded-[1.5rem] hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors text-gray-400 dark:text-slate-500">
-                        <i class="ph ph-heart text-xl"></i>
-                    </button>
                 </form>
                 @else
                 <div class="p-8 border-2 border-dashed border-gray-100 dark:border-slate-800 rounded-[2.5rem] text-center bg-gray-50/50 dark:bg-slate-900/30">
-                    <p class="text-gray-400 dark:text-slate-600 text-[10px] font-black uppercase tracking-widest italic">Maaf, unit sedang tidak tersedia di rak kami.</p>
+                    <p class="text-gray-400 dark:text-slate-600 text-[10px] font-black uppercase tracking-widest italic">Maaf, unit sedang tidak tersedia.</p>
                 </div>
                 @endif
-                
-                {{-- Info Note --}}
-                <div class="mt-8 p-6 bg-blue-50/50 dark:bg-blue-900/10 rounded-2xl flex items-start gap-4 border border-blue-50 dark:border-blue-900/20">
-                    <i class="ph ph-info text-xl text-blue-500"></i>
-                    <p class="text-[10px] text-gray-500 dark:text-slate-400 font-bold uppercase tracking-tight leading-relaxed">
-                        Catatan: <span class="text-gray-400 dark:text-slate-500 font-medium lowercase italic">Setelah mengajukan pinjaman secara online, harap tunggu konfirmasi admin sebelum mengambil buku.</span>
-                    </p>
-                </div>
             </div>
         </div>
     </div>

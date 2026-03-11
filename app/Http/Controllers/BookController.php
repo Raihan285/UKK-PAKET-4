@@ -4,33 +4,32 @@ namespace App\Http\Controllers;
 
 use App\Models\Book; 
 use App\Http\Controllers\Controller;
-use App\Models\Setting; // Penting untuk mengambil daftar_kategori
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class BookController extends Controller
 {
     /**
-     * Menampilkan daftar buku dan mengirimkan data kategori dinamis
+     * Menampilkan daftar buku dan mengirimkan data kategori 
      */
   public function index()
     {
-        // 1. Ambil data buku (pastikan nama variabel sesuai dengan di View)
+        // Ambil Data Buku
         $buku = \App\Models\Book::all(); 
         
-        // 2. Ambil data setting untuk mendapatkan kategori
+        // Ambil Data Setting Untuk Mendapatkan Kategori
         $setting = \App\Models\Setting::first();
         
-        // 3. Ambil kategori dan bersihkan dari nilai null/kosong
+        // Ambil Kategori Dan Bersihkan Dari Nilai Null
         $categories = array_filter($setting->daftar_kategori ?? []); 
 
-        // 4. Kirim variabel ke View
+        // Mengirim Variabel Ke View
         return view('buku.index', compact('buku', 'categories'));
     }
 
     public function store(Request $request)
     {
-        // 1. Validasi input
+        // Validasi Input
         $request->validate([
             'judul' => 'required',
             'penulis' => 'required',
@@ -39,10 +38,10 @@ class BookController extends Controller
             'cover' => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        // 2. Simpan file cover ke storage public
+        // Simpan File Cover Ke Storage Public
         $path = $request->file('cover')->store('covers', 'public');
 
-        // 3. Simpan data ke database termasuk kolom is_recommended
+        // Simpan Data Ke Database
         Book::create([
             'judul' => $request->judul,
             'penulis' => $request->penulis,
@@ -70,7 +69,7 @@ class BookController extends Controller
         $data = $request->all();
 
         if ($request->hasFile('cover')) {
-            // Hapus file lama jika ada upload file baru
+            // Logika file lama jika ada upload file baru
             if ($buku->cover) {
                 Storage::disk('public')->delete($buku->cover);
             }

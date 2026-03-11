@@ -29,12 +29,11 @@ class AnggotaController extends Controller
         User::create([
             'name'     => $request->name,
             'email'    => $request->email,
-            // Mengatasi error Field 'username' doesn't have a default value
             'username' => explode('@', $request->email)[0], 
             'password' => Hash::make($request->password),
             'role'     => 'siswa', 
-            'telepon'  => $request->telepon, // Memasukkan data telepon ke database
-            'alamat'   => $request->alamat,  // Memasukkan data alamat ke database
+            'telepon'  => $request->telepon, 
+            'alamat'   => $request->alamat,  
         ]);
 
         return redirect()->back()->with('success', 'Akun siswa berhasil dibuat!');
@@ -54,7 +53,7 @@ class AnggotaController extends Controller
         $data = [
             'name' => $request->name,
             'email' => $request->email,
-            'username' => explode('@', $request->email)[0], // Update username jika email berubah
+            'username' => explode('@', $request->email)[0], 
             'telepon' => $request->telepon,
             'alamat' => $request->alamat,
         ];

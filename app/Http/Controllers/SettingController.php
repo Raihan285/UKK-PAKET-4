@@ -4,10 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Setting;
 use App\Http\Controllers\Controller;
-use App\Models\Category; // Pastikan model ini sudah dibuat
-use App\Models\Book;     // Pastikan model ini sudah dibuat
+use App\Models\Book;     
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 
 class SettingController extends Controller
 {
@@ -18,14 +16,12 @@ class SettingController extends Controller
     }
 
     try {
-        // Menggunakan firstOrCreate agar data ID 1 otomatis ada
         $setting = Setting::firstOrCreate(['id' => 1], [
             'batas_hari' => 7,
             'denda_per_hari' => 1000,
             'daftar_kategori' => ['Novel', 'Sains', 'Biografi']
         ]);
     } catch (\Exception $e) {
-        // Fallback jika tabel benar-benar belum ada di MySQL
         return "Tabel settings belum dibuat. Silakan jalankan 'php artisan migrate' di terminal.";
     }
 
@@ -36,15 +32,13 @@ class SettingController extends Controller
     // Update Denda & Batas Hari
    public function update(Request $request)
     {
-        // 1. Validasi input
         $request->validate([
             'batas_hari' => 'required|numeric|min:1',
             'denda_per_hari' => 'required|numeric|min:0',
         ]);
 
-        // 2. Gunakan updateOrCreate untuk memastikan data ID 1 yang diperbarui
         \App\Models\Setting::updateOrCreate(
-            ['id' => 1], // Cari data dengan ID 1
+            ['id' => 1], 
             [
                 'batas_hari' => $request->batas_hari,
                 'denda_per_hari' => $request->denda_per_hari,
@@ -54,17 +48,17 @@ class SettingController extends Controller
         return redirect()->back()->with('success', 'Denda dan batas waktu berhasil diperbarui!');
     }
 
-    // --- FITUR BARU: MANAJEMEN KATEGORI ---
+    // Manajemen Kategori
    public function storeCategory(Request $request)
     {
         $setting = Setting::first();
         $categories = $setting->daftar_kategori ?? [];
         
-        // Tambah kategori baru ke array
+        // Menambahkan Kategori Ke Array
         $categories[] = $request->nama_kategori;
         
         $setting->update([
-            'daftar_kategori' => array_unique($categories) // Pastikan tidak ada duplikat
+            'daftar_kategori' => array_unique($categories) 
         ]);
 
         return back()->with('success', 'Kategori berhasil ditambahkan ke pengaturan!');
@@ -83,14 +77,13 @@ class SettingController extends Controller
             
             $setting->update(['daftar_kategori' => $newList]);
         }
-        return redirect()->back()->with('success', 'Kategori berhasil dihapus!');
+         return redirect()->back()->with('success', 'Kategori berhasil dihapus!');
     }
 
-    // --- FITUR BARU: REKOMENDASI BUKU ---
+    // Rekomendasi Buku
     public function toggleRecommendation($id)
     {
         $book = Book::findOrFail($id);
-        // Toggle status: jika true jadi false, jika false jadi true
         $book->is_recommended = !$book->is_recommended;
         $book->save();
 

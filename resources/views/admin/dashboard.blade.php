@@ -2,85 +2,156 @@
 
 @section('content')
 <div class="min-h-screen bg-[#f8fafc] dark:bg-slate-950 p-6 transition-colors duration-500">
-    <div class="max-w-7xl mx-auto space-y-8">
+    <div class="max-w-7xl mx-auto space-y-10">
         
-        {{-- Header Tanpa Tombol (Hanya Judul) --}}
-        <div class="flex justify-between items-center">
+        {{-- Dashboard Header --}}
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-gray-100 dark:border-slate-800 pb-8">
             <div>
-                <h1 class="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tighter">Ringkasan Sistem</h1>
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Data keseluruhan Booktify</p>
+                <h1 class="text-4xl font-black text-gray-900 dark:text-white uppercase tracking-tighter italic">
+                    Control <span class="text-blue-600">Center</span>
+                </h1>
+                <p class="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-[0.4em] mt-2 flex items-center gap-2">
+                    <span class="w-8 h-[2px] bg-blue-600"></span>
+                    Statistik Real-time Booktify
+                </p>
             </div>
-            {{-- Tombol dihapus karena sudah ada di Navbar/Layout --}}
-        </div>
-
-        {{-- Grid Statistik 4 Kolom --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {{-- Card: Total Siswa --}}
-            <div class="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-gray-100 dark:border-slate-800 shadow-sm">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="p-3 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 rounded-2xl"><i class="ph-bold ph-users text-xl"></i></div>
-                </div>
-                <h3 class="text-2xl font-black text-gray-900 dark:text-white">{{ $total_siswa }}</h3>
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Anggota</p>
-            </div>
-            //aaa
-            {{-- Card: Total Buku --}}
-            <div class="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-gray-100 dark:border-slate-800 shadow-sm">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="p-3 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-2xl"><i class="ph-bold ph-books text-xl"></i></div>
-                </div>
-                <h3 class="text-2xl font-black text-gray-900 dark:text-white">{{ $total_buku }}</h3>
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Koleksi Buku</p>
-            </div>
-
-            {{-- Card: Dipinjam --}}
-            <div class="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-gray-100 dark:border-slate-800 shadow-sm">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="p-3 bg-amber-50 dark:bg-amber-900/20 text-amber-600 rounded-2xl"><i class="ph-bold ph-swap text-xl"></i></div>
-                </div>
-                <h3 class="text-2xl font-black text-gray-900 dark:text-white">{{ $total_dipinjam }}</h3>
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Sirkulasi Aktif</p>
-            </div>
-
-            {{-- Card: Denda --}}
-            <div class="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-gray-100 dark:border-slate-800 shadow-sm">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="p-3 bg-rose-50 dark:bg-rose-900/20 text-rose-600 rounded-2xl"><i class="ph-bold ph-coins text-xl"></i></div>
-                </div>
-                <h3 class="text-2xl font-black text-gray-900 dark:text-white">Rp {{ number_format($total_denda, 0, ',', '.') }}</h3>
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Akumulasi Denda</p>
+            <div class="hidden md:block text-right">
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">Status Sistem</p>
+                <p class="text-xs font-bold text-green-500 uppercase flex items-center justify-end gap-2">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-ping"></span> Operasional Optimal
+                </p>
             </div>
         </div>
 
-        {{-- Tabel Persetujuan Cepat --}}
-        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-gray-100 dark:border-slate-800 overflow-hidden shadow-sm">
-            <div class="px-8 py-6 border-b border-gray-50 dark:border-slate-800">
-                <h3 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-widest">Butuh Persetujuan Peminjaman</h3>
+        {{-- Grid Statistik --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {{-- Total Anggota --}}
+            <div class="group bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-500">
+                <div class="flex justify-between items-start mb-6">
+                    <div class="p-4 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 rounded-2xl group-hover:scale-110 transition-transform">
+                        <i class="ph-bold ph-users text-2xl"></i>
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <h3 class="text-4xl font-black text-gray-900 dark:text-white tracking-tighter">{{ $total_siswa }}</h3>
+                    <p class="text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest">Total Anggota</p>
+                </div>
             </div>
-            <table class="w-full text-left">
-                <tbody class="divide-y divide-gray-50 dark:divide-slate-800">
-                    @forelse($pending_approvals as $trx)
-                    <tr class="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
-                        <td class="px-8 py-4">
-                            <p class="text-xs font-bold text-gray-900 dark:text-white">{{ $trx->user->name }}</p>
-                            <p class="text-[9px] text-gray-400 uppercase">{{ $trx->book->judul }}</p>
-                        </td>
-                        <td class="px-8 py-4 text-right">
-                            <form action="{{ route('transaksi.approve', $trx->id) }}" method="POST">
-                                @csrf
-                                <button class="px-4 py-2 bg-blue-600 text-white text-[9px] font-black uppercase rounded-xl hover:bg-blue-700 transition-all">Setujui</button>
-                            </form>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="2" class="px-8 py-10 text-center text-gray-400 dark:text-slate-600 text-xs italic font-bold uppercase tracking-widest">
-                            Tidak ada antrean persetujuan.
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+
+            {{-- Koleksi Buku --}}
+            <div class="group bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-500">
+                <div class="flex justify-between items-start mb-6">
+                    <div class="p-4 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-2xl group-hover:scale-110 transition-transform">
+                        <i class="ph-bold ph-books text-2xl"></i>
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <h3 class="text-4xl font-black text-gray-900 dark:text-white tracking-tighter">{{ $total_buku }}</h3>
+                    <p class="text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest">Item Literatur</p>
+                </div>
+            </div>
+
+            {{-- Sirkulasi Aktif --}}
+            <div class="group bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:shadow-amber-500/5 transition-all duration-500">
+                <div class="flex justify-between items-start mb-6">
+                    <div class="p-4 bg-amber-50 dark:bg-amber-900/20 text-amber-600 rounded-2xl group-hover:scale-110 transition-transform">
+                        <i class="ph-bold ph-swap text-2xl"></i>
+                    </div>
+                    <span class="text-[9px] font-black px-3 py-1 bg-amber-100 text-amber-700 rounded-full uppercase tracking-tighter italic">Aktif</span>
+                </div>
+                <div class="space-y-1">
+                    <h3 class="text-4xl font-black text-gray-900 dark:text-white tracking-tighter">{{ $total_dipinjam }}</h3>
+                    <p class="text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest">Buku Dipinjam</p>
+                </div>
+            </div>
+
+            {{-- Akumulasi Denda --}}
+            <div class="group bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-slate-800 shadow-sm hover:shadow-xl hover:shadow-rose-500/5 transition-all duration-500">
+                <div class="flex justify-between items-start mb-6">
+                    <div class="p-4 bg-rose-50 dark:bg-rose-900/20 text-rose-600 rounded-2xl group-hover:scale-110 transition-transform">
+                        <i class="ph-bold ph-coins text-2xl"></i>
+                    </div>
+                </div>
+                <div class="space-y-1">
+                    <h3 class="text-3xl font-black text-gray-900 dark:text-white tracking-tighter">Rp {{ number_format($total_denda, 0, ',', '.') }}</h3>
+                    <p class="text-[10px] font-black text-gray-400 dark:text-slate-500 uppercase tracking-widest">Total Denda</p>
+                </div>
+            </div>
+        </div>
+
+        {{-- Bagian Bawah --}}
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {{-- Persetujuan Cepat --}}
+            <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-[3rem] border border-gray-100 dark:border-slate-800 overflow-hidden shadow-sm">
+                <div class="px-10 py-8 border-b border-gray-50 dark:border-slate-800 flex justify-between items-center bg-gray-50/50 dark:bg-slate-800/30">
+                    <div>
+                        <h3 class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-[0.2em]">Queue Persetujuan</h3>
+                        <p class="text-[9px] font-bold text-gray-400 uppercase mt-1 tracking-widest">Permintaan peminjaman terbaru</p>
+                    </div>
+                    <span class="w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-black shadow-lg shadow-blue-200 dark:shadow-none">
+                        {{ count($pending_approvals) }}
+                    </span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <tbody class="divide-y divide-gray-50 dark:divide-slate-800">
+                            @forelse($pending_approvals as $trx)
+                            <tr class="hover:bg-gray-50/50 dark:hover:bg-blue-900/5 transition-colors group">
+                                <td class="px-10 py-6">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-10 h-10 rounded-xl bg-gray-100 dark:bg-slate-800 flex items-center justify-center text-gray-500 font-black text-xs">
+                                            {{ strtoupper(substr($trx->user->name, 0, 1)) }}
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-black text-gray-900 dark:text-white uppercase tracking-tight group-hover:text-blue-600 transition-colors">{{ $trx->user->name }}</p>
+                                            <p class="text-[9px] text-gray-400 font-bold uppercase tracking-widest italic mt-0.5">{{ $trx->book->judul }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-10 py-6 text-right">
+                                    <form action="{{ route('transaksi.approve', $trx->id) }}" method="POST">
+                                        @csrf
+                                        <button class="px-6 py-3 bg-gray-900 dark:bg-blue-600 text-white text-[9px] font-black uppercase tracking-[0.2em] rounded-xl hover:bg-blue-600 dark:hover:bg-blue-700 transition-all shadow-lg active:scale-95">
+                                            Otorisasi
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="2" class="px-8 py-20 text-center">
+                                    <div class="flex flex-col items-center opacity-20">
+                                        <i class="ph-bold ph-checks text-5xl mb-2"></i>
+                                        <p class="text-[10px] font-black uppercase tracking-[0.3em]">Semua permintaan telah diproses</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {{-- Info Tambahan dan Shortcut --}}
+            <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-[3rem] p-10 text-white shadow-2xl shadow-blue-200 dark:shadow-none flex flex-col justify-between relative overflow-hidden group">
+                <i class="ph-bold ph-lightning absolute -right-10 -top-10 text-[15rem] text-white/10 group-hover:rotate-12 transition-transform duration-700"></i>
+                <div class="relative z-10">
+                    <h4 class="text-2xl font-black leading-tight tracking-tighter uppercase italic">Quick<br>Actions</h4>
+                    <div class="mt-8 space-y-3">
+                        <a href="{{ route('buku.index') }}" class="flex items-center justify-between p-4 bg-white/10 rounded-2xl hover:bg-white/20 transition-all backdrop-blur-md border border-white/10">
+                            <span class="text-[10px] font-black uppercase tracking-widest">Cek Inventaris</span>
+                            <i class="ph-bold ph-arrow-right"></i>
+                        </a>
+                        <a href="{{ route('anggota.index') }}" class="flex items-center justify-between p-4 bg-white/10 rounded-2xl hover:bg-white/20 transition-all backdrop-blur-md border border-white/10">
+                            <span class="text-[10px] font-black uppercase tracking-widest">Data Anggota</span>
+                            <i class="ph-bold ph-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="relative z-10 pt-10">
+                    <p class="text-[9px] font-bold uppercase tracking-[0.2em] opacity-60">Booktify</p>
+                </div>
+            </div>
         </div>
     </div>
 </div>

@@ -8,11 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Book extends Model
 {
     use HasFactory;
-
-    /**
-     * Kolom yang dapat diisi (Mass Assignable)
-     * Sesuai dengan tampilan di home.blade.php
-     */
+    
     protected $fillable = [
         'judul',    
         'penulis',   

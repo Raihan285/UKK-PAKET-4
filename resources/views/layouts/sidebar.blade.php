@@ -1,13 +1,33 @@
-<aside class="w-64 bg-white dark:bg-slate-900 border-r dark:border-slate-800 flex flex-col pt-0 pb-6 sticky top-0 h-screen transition-colors duration-500">
+{{-- Tombol Hamburger Saat Di HP --}}
+<div class="lg:hidden fixed top-5 left-4 z-[100]">
+    <button @click="sidebarOpen = !sidebarOpen" 
+            type="button"
+            class="p-2.5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-xl shadow-xl text-gray-600 dark:text-gray-300 active:scale-95 transition-all">
+        <i class="ph-bold ph-list text-xl" x-show="!sidebarOpen"></i>
+        <i class="ph-bold ph-x text-xl" x-cloak x-show="sidebarOpen"></i>
+    </button>
+</div>
+
+{{-- Overlay Saat Ukuran di kecilkan --}}
+<div x-cloak 
+     x-show="sidebarOpen" 
+     @click="sidebarOpen = false" 
+     class="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[80] transition-opacity duration-300">
+</div>
+
+{{-- Sidebar Utama --}}
+<aside 
+    :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
+    class="fixed lg:sticky top-0 left-0 z-[90] w-64 bg-white dark:bg-slate-900 border-r dark:border-slate-800 flex flex-col pt-0 pb-6 h-screen transition-all duration-500 ease-in-out shadow-2xl lg:shadow-none">
+    
     <div class="px-4 -mt-4 mb-0">
-        {{-- Tips: Jika logo Anda punya versi dark mode, Anda bisa pakai filter invert atau ganti asset --}}
         <img src="{{ asset('images/logobooktify.png') }}" alt="Booktify" class="w-full h-auto block object-contain dark:brightness-110">
     </div>
     
-    <nav class="flex-1 px-4 -mt-8 space-y-1 overflow-y-auto">
+    <nav class="flex-1 px-4 -mt-8 space-y-1 overflow-y-auto no-scrollbar">
         <div class="mb-1 px-4 text-[10px] font-bold text-gray-300 dark:text-slate-600 uppercase tracking-widest">Menu Utama</div>
         
-        {{-- BERANDA --}}
+        {{-- Beranda --}}
         <a href="{{ route('home') }}" class="flex items-center space-x-3 px-4 py-3 
             {{ request()->routeIs('home') ? 
                 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400' : 
@@ -17,7 +37,7 @@
             <span>Beranda</span>
         </a>
         
-        {{-- DAFTAR BUKU --}}
+        {{-- Daftar Buku --}}
         <a href="{{ route('daftar_buku.index') }}" 
            class="flex items-center space-x-3 px-4 py-3 
            {{ request()->routeIs('daftar_buku.*') ? 
@@ -29,7 +49,7 @@
         </a>
 
         @if(Auth::user()->role != 'admin')
-        {{-- PEMINJAMAN (USER) --}}
+        {{-- Peminjaman (User) --}}
         <a href="{{ route('transaksi.index') }}" class="flex items-center space-x-3 px-4 py-3 
             {{ request()->routeIs('transaksi.index') ? 
                 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400' : 
@@ -43,7 +63,7 @@
         @if(Auth::user()->role == 'admin')
         <div class="mt-6 mb-1 px-4 text-[10px] font-bold text-gray-300 dark:text-slate-600 uppercase tracking-widest">Administrator</div>
         
-        {{-- STATISTIK GLOBAL --}}
+        {{-- Statistik Global --}}
         <a href="{{ route('admin.dashboard') }}" class="flex items-center space-x-3 px-4 py-3 
             {{ request()->routeIs('admin.dashboard') ? 
                 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400' : 
@@ -53,7 +73,7 @@
             <span class="text-sm font-bold">Statistik Global</span>
         </a>
 
-        {{-- PERSETUJUAN --}}
+        {{-- Persetujuan --}}
         <a href="{{ route('transaksi.index') }}" class="flex items-center space-x-3 px-4 py-3 
             {{ request()->routeIs('transaksi.index') ? 
                 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400' : 
@@ -63,7 +83,7 @@
             <span>Persetujuan</span>
         </a>
 
-        {{-- PENGEMBALIAN --}}
+        {{-- Pengembalian --}}
         <a href="{{ route('transaksi.pengembalian') }}" 
            class="flex items-center space-x-3 px-4 py-3 
            {{ request()->routeIs('transaksi.pengembalian') ? 
@@ -74,7 +94,7 @@
             <span>Pengembalian</span>
         </a>
 
-        {{-- KELOLA BUKU --}}
+        {{-- Kelola Buku --}}
         <a href="{{ route('buku.index') }}" class="flex items-center space-x-3 px-4 py-3 
             {{ request()->routeIs('buku.*') ? 
                 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400' : 
@@ -84,7 +104,7 @@
             <span>Kelola Buku</span>
         </a>
 
-        {{-- KELOLA ANGGOTA --}}
+        {{-- Kelola Anggota --}}
         <a href="{{ route('anggota.index') }}" class="flex items-center space-x-3 px-4 py-3 
             {{ request()->routeIs('anggota.*') ? 
                 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400' : 
@@ -98,7 +118,7 @@
         @if(Auth::user()->role == 'admin')
         <div class="mt-6 mb-1 px-4 text-[10px] font-bold text-gray-300 dark:text-slate-600 uppercase tracking-widest">Sistem</div>
 
-        {{-- PENGATURAN --}}
+        {{-- Pengaturan --}}
         <a href="{{ route('settings.index') }}" class="flex items-center space-x-3 px-4 py-3 
             {{ request()->routeIs('settings.*') ? 
                 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400' : 

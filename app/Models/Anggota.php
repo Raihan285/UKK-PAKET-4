@@ -9,6 +9,5 @@ class Anggota extends Model
 {
     use HasFactory;
 
-    // Field ini harus ada agar data bisa disimpan ke database
     protected $fillable = ['nama', 'email', 'telepon', 'alamat'];
 }
