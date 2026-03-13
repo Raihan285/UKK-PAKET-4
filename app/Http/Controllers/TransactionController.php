@@ -166,4 +166,20 @@ class TransactionController extends Controller
 
         return redirect()->back()->with('success', 'Permintaan pengembalian terkirim.');
     }
+
+    public function reject($id)
+    {
+        $transaction = Transaction::findOrFail($id);
+        
+        // Pastikan hanya transaksi yang berstatus 'menunggu' yang bisa ditolak
+        if ($transaction->status === 'menunggu') {
+            $transaction->update([
+                'status' => 'ditolak'
+            ]);
+
+            return redirect()->back()->with('error', 'Permintaan peminjaman buku telah ditolak.');
+        }
+
+        return redirect()->back()->with('error', 'Status transaksi tidak valid untuk ditolak.');
+    }
 }

@@ -43,7 +43,7 @@
         }
     </script>
 
-    {{-- Script Global Script --}}
+    {{-- Script Global Search --}}
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.getElementById('globalSearch');

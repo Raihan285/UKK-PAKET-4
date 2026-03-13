@@ -9,5 +9,5 @@ class Anggota extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nama', 'email', 'telepon', 'alamat'];
+    protected $fillable = ['name', 'email', 'telepon', 'alamat', 'role'];
 }

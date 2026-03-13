@@ -21,19 +21,17 @@ class AnggotaController extends Controller
         $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|string|email|unique:users',
-            'password' => 'required|min:8',
+            'password' => 'required|min:6',
             'telepon'  => 'required',
             'alamat'   => 'required',
         ]);
 
         User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'username' => explode('@', $request->email)[0], 
+            'name' => $request->name,
+            'username' => $request->username, 
+            'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role'     => 'siswa', 
-            'telepon'  => $request->telepon, 
-            'alamat'   => $request->alamat,  
+            'role' => 'siswa', 
         ]);
 
         return redirect()->back()->with('success', 'Akun siswa berhasil dibuat!');

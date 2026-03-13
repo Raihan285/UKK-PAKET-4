@@ -5,6 +5,56 @@
     [x-cloak] { display: none !important; }
 </style>
 
+{{-- Alert System --}}
+<div x-data="{ show: true }" 
+     x-show="show" 
+     x-cloak
+     class="fixed inset-0 z-[200] flex items-center justify-center p-6 pointer-events-none">
+    
+    @if(session('success'))
+    <div x-show="show" 
+         x-init="setTimeout(() => show = false, 4000)"
+         x-transition:enter="ease-out duration-300"
+         x-transition:enter-start="opacity-0 scale-90"
+         x-transition:enter-end="opacity-100 scale-100"
+         x-transition:leave="ease-in duration-200"
+         x-transition:leave-start="opacity-100 scale-100"
+         x-transition:leave-end="opacity-0 scale-90"
+         class="w-full max-w-sm bg-white dark:bg-slate-900 border-2 border-blue-500 rounded-[2.5rem] p-8 shadow-2xl text-center pointer-events-auto relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-2 bg-blue-500"></div>
+        <div class="w-20 h-20 bg-blue-50 dark:bg-blue-900/30 rounded-3xl flex items-center justify-center text-blue-500 mx-auto mb-6">
+            <i class="ph-fill ph-check-circle text-5xl"></i>
+        </div>
+        <h3 class="text-xl font-black text-slate-800 dark:text-white uppercase tracking-tighter mb-2">Berhasil</h3>
+        <p class="text-[11px] font-bold text-slate-500 dark:text-slate-400 leading-relaxed">{{ session('success') }}</p>
+        <button @click="show = false" class="mt-8 w-full py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-black rounded-2xl text-[10px] uppercase tracking-[0.2em]">Tutup</button>
+    </div>
+    @endif
+
+    @if($errors->any())
+    <div x-show="show" 
+         x-transition:enter="ease-out duration-300"
+         x-transition:enter-start="opacity-0 scale-90"
+         x-transition:enter-end="opacity-100 scale-100"
+         class="w-full max-w-sm bg-white dark:bg-slate-900 border-2 border-red-500 rounded-[2.5rem] p-8 shadow-2xl pointer-events-auto relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-2 bg-red-500"></div>
+        <div class="w-20 h-20 bg-red-50 dark:bg-red-900/30 rounded-3xl flex items-center justify-center text-red-500 mx-auto mb-6">
+            <i class="ph-fill ph-warning-circle text-5xl"></i>
+        </div>
+        <h3 class="text-xl font-black text-slate-800 dark:text-white uppercase tracking-tighter mb-4 text-center">Kesalahan</h3>
+        <ul class="space-y-2 mb-8">
+            @foreach ($errors->all() as $error)
+                <li class="flex items-center gap-3">
+                    <div class="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                    <span class="text-[11px] font-bold text-slate-600 dark:text-slate-300">{{ $error }}</span>
+                </li>
+            @endforeach
+        </ul>
+        <button @click="show = false" class="w-full py-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 font-black rounded-2xl text-[10px] uppercase tracking-[0.2em]">Perbaiki</button>
+    </div>
+    @endif
+</div>
+
 <div x-data="{ 
     openModal: false, 
     openEditModal: false, 

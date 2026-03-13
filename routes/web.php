@@ -51,7 +51,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/pengembalian', [TransactionController::class, 'pengembalian'])->name('transaksi.pengembalian');
         Route::post('/transaksi/{id}/return', [TransactionController::class, 'returnBook'])->name('transaksi.return');
         Route::post('/transaksi/{id}/konfirmasi-kembali', [TransactionController::class, 'processReturn'])->name('transaksi.konfirmasi_kembali'); 
-        
+        Route::post('/transaksi/{id}/reject', [TransactionController::class, 'reject'])->name('transaksi.reject');
+
         // Pengaturan Sistem (Denda & Batas Waktu)
         Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
         Route::post('/settings/update', [SettingController::class, 'update'])->name('settings.update');
